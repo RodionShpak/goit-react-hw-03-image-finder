@@ -1,4 +1,6 @@
+import PropTypes from 'prop-types';
 import ImageRequestService from 'helpers/ImageRequestService/ImageRequestService';
+
 import { Component } from 'react';
 
 export const imageRequestService = new ImageRequestService();
@@ -20,12 +22,14 @@ export class Searchbar extends Component {
 
     imageRequestService.query = searchQuery;
     imageRequestService.resetPage();
+
     isLoadToggle();
 
     const images = await imageRequestService.getImage();
 
+    isLoadToggle();
+
     if (images) {
-      isLoadToggle();
       getImages(images);
     }
   };
@@ -51,3 +55,9 @@ export class Searchbar extends Component {
     );
   }
 }
+
+Searchbar.propTypes = {
+  getImages: PropTypes.func.isRequired,
+  isLoadToggle: PropTypes.func.isRequired,
+  children: PropTypes.element.isRequired,
+};
