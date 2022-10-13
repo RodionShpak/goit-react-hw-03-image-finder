@@ -1,63 +1,39 @@
-import PropTypes from 'prop-types';
-import ImageRequestService from 'helpers/ImageRequestService/ImageRequestService';
+import { PureComponent } from "react";
+import { ButtonSearch } from "../Buttons/ButtonSearch";
+import { InputValue } from "../InputValue/InputValue";
+import { SearchBarS, SearchFormS } from "./Searchbar.styled";
+import { toast } from "react-toastify";
 
-import { Component } from 'react';
-
-export const imageRequestService = new ImageRequestService();
-
-export class Searchbar extends Component {
+export class SearchBar extends PureComponent {
   state = {
-    searchQuery: '',
+    query: "",
   };
-
-  onChange = e => {
-    this.setState({ searchQuery: e.currentTarget.value });
+  handleQueryChange = (event) => {
+    this.setState({ query: event.currentTarget.value.toLowerCase() });
   };
-
-  handleSubmit = async e => {
-    const { searchQuery } = this.state;
-    const { getImages, isLoadToggle } = this.props;
-
-    e.preventDefault();
-
-    imageRequestService.query = searchQuery;
-    imageRequestService.resetPage();
-
-    isLoadToggle();
-
-    const images = await imageRequestService.getImage();
-
-    isLoadToggle();
-
-    if (images) {
-      getImages(images);
+  handleSubmit = (event) => {
+    event.preventDefault();
+    if (this.state.query.trim() === "") {
+      toast.error("Empty");
+      return;
     }
+
+    this.props.onSubmit(this.state.query);
+    this.setState({ query: "" });
   };
-
   render() {
-    const { children } = this.props;
-
     return (
-      <header className="Searchbar">
-        <form onSubmit={this.handleSubmit} className="SearchForm">
-          <input
-            value={this.searchQuery}
-            onChange={this.onChange}
-            className="SearchForm-input"
-            type="text"
-            autoComplete="off"
-            autoFocus
-            placeholder="Search images and photos"
-          />
-          {children}
-        </form>
-      </header>
+      <>
+        <SearchBarS>
+          <SearchFormS onSubmit={this.handleSubmit}>
+            <ButtonSearch></ButtonSearch>
+            <InputValue
+              onChange={this.handleQueryChange}
+              value={this.state.query}
+            ></InputValue>
+          </SearchFormS>
+        </SearchBarS>
+      </>
     );
   }
 }
-
-Searchbar.propTypes = {
-  getImages: PropTypes.func.isRequired,
-  isLoadToggle: PropTypes.func.isRequired,
-  children: PropTypes.element.isRequired,
-};
